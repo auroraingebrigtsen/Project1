@@ -14,7 +14,6 @@ def split(x:pd.Series, threshold) -> 'pd.core.indexes.base.Index':
 feature = pd.Series([0,1,0,0,0,1,1,0,0,0,1,1,0,1])
 feature2 = pd.Series([1,1,1,1,0,0,0,1,0,0,0,1,0,1])
 df = pd.DataFrame({"wind":feature, "outlook":feature2})
-print(df)
 y = pd.Series([0,0,1,1,1,0,1,0,1,1,1,1,1,0])
 
 df2 = pd.DataFrame({"wind":[1,2,3,4,5,6,7,8,9,10], "outlook":[1,2,3,4,5,6,7,8,9,10]})
@@ -39,17 +38,10 @@ def _information_gain(x:pd.Series, y:pd.Series, treshold) -> float:
 
 
 def find_threshold(X, y): #best_split
-        """
-        set best_ig = 0
-        1. loop trough all columns of features
-                2. find all unique values in the column
-                3. loop trough the unique values (2)
-                        4. calculate impurity
-                        5. check if new ig better than best_ig, if true change best_ig
-        returns index and treshold for were to split
-        """
+        """finds the threshold that gives the best information gain"""
         best_ig = -1
         best_threshold = 0
+        best_feature = None
         for feature in X:
                 unique_vals = pd.unique(X[feature]) # array of unique values
                 for threshold in unique_vals:
@@ -57,9 +49,22 @@ def find_threshold(X, y): #best_split
                         if ig > best_ig:
                                 best_ig = ig
                                 best_threshold = threshold
-        return best_threshold
+                                best_feature = feature
+        return best_threshold, best_feature
 
+df3 = pd.DataFrame({"wind":[1,1,1,1], "outlook":[2,2,2,2], "meh":[3,3,3,3]})
 
+y3 = pd.Series([1,1,1,1,1,1,1])
 
-print(find_threshold(df, y))
-print(find_threshold(df2, y2))
+def conditions(X, y):
+        if np.all(np.unique(y) == y[0]):
+                print("  # If all data points have the same label")
+                return y[0]
+        elif not X.duplicated().all(): # Else, if all data points have identical feature values:
+                # duplicated returns df with row is duplicate True/False. All checks if 
+                value_count = y.mode()[0]
+                return value_count #return a leaf with the most common label.
+        else:
+                return False
+
+print(conditions(df, y3))

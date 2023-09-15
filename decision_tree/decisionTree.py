@@ -11,6 +11,7 @@ class DecisionTree:
 
     def learn(self, X, y, impurity_measure='entropy'):
         """Seperates the data, sets the root and builds the tree. Prunes the tree"""
+        self.impurity_measure = impurity_measure
         seed = 3
 
         # split the data into training data (60%) and pruning + test data (40%)
@@ -24,40 +25,33 @@ class DecisionTree:
         # Start recursion
         self.root = self._build(X_train, y_train)
         
-        # TODO call function to prun tree
+        # TODO: call function to prun tree
       
     def _calculate_impurity(self, y:pd.Series):
         """Chooses which function to call based on impurity measure type"""
         if self.impurity_measure == 'entropy':
-            return self.entropy(y)
+            return self._entropy(y)
         elif self.impurity_measure == 'gini':
-            return self.gini(y)
+            return self._gini(y)
         else:
             raise ValueError("Invalid impurity_measure parameter")
 
     def _build(self, X:pd.DataFrame, y:pd.Series, depth=0) -> 'TreeNode':
         """Builds the tree recursively"""
-        if np.all(np.unique(y) == y[0]):  # If all data points have the same label
+        if np.all(np.unique(y) == y[0]):  # If all data points have the same label, return a leaf with that label
             return TreeNode(value=y[0])
-        elif X.duplicated(keep=False).all(): # Else, if all data points have identical feature values:
-            value_count = y.value_counts()
-            common_label = value_count.idxmax() # consider using mode here instead? Faster and less code?
-            return TreeNode(value=common_label) #return a leaf with the most common label.
+        elif X.duplicated(keep=False).all(): # Else, if all data points have identical feature values, return a leaf with the most common label.
+            return TreeNode(value=y.mode()[0]) 
         else:  # choose a feature that maximizes the information gain,
-            impurity = self.impurity_calculator.calculate_impurity(X, y)
-            best_value, best_name = max(zip(impurity.values(), impurity.keys()))  # find key name of max value in dict
-            new_node = TreeNode(feature=best_name, ig=best_value)
-            left_indices = X[X[best_name] == 1].index
-            right_indices = X[X[best_name] == 0].index
+            best_threshold, best_feature = self._find_threshold(X, y)
+            new_node = TreeNode(feature=best_feature)
+            left_indices, right_indices = self._split(X.loc[best_feature], best_threshold)
             
             left_X = X.loc[left_indices].reset_index(drop=True)
             left_y = y.loc[left_indices].reset_index(drop=True)
-            print("Left X", left_X)
-            print("Left y", left_y)
             
             right_X = X.loc[right_indices].reset_index(drop=True)
             right_y = y.loc[right_indices].reset_index(drop=True)
-            print("Right X", right_X)
 
             left_child = self.build(left_X, left_y, depth=depth+1)
             right_child = self.build(right_X, right_y, depth=depth+1)
@@ -67,18 +61,18 @@ class DecisionTree:
         
     def _information_gain(self, x:pd.Series, y:pd.Series, treshold) -> float:
         """calculates the information gain of a single feature"""
-        base_impurity = self.entropy(y)
+        base_impurity = self._calculate_impurity(y)
         left_indexes, right_indexes = self.split(x, treshold)
         if left_indexes.empty or right_indexes.empty:
                 return 0
         left_frac= len(left_indexes)/len(y)
         right_frac= len(right_indexes)/len(y)
-        left_child_entropy = left_frac*self.entropy(y.loc[left_indexes])
-        right_child_entropy = right_frac*self.entropy(y.loc[right_indexes])
+        left_child_entropy = left_frac*self._calculate_impurity(y.loc[left_indexes])
+        right_child_entropy = right_frac*self._calculate_impurity(y.loc[right_indexes])
         return base_impurity - (left_child_entropy + right_child_entropy)
         
     
-    def find_threshold(self, X, y): #best_split
+    def _find_threshold(self, X, y): #best_split
             """finds the threshold that gives the best information gain"""
             best_ig = -1
             best_threshold = 0
@@ -93,7 +87,7 @@ class DecisionTree:
                                     best_feature = feature
             return best_threshold, best_feature
 
-    def split(self, x:pd.Series, threshold) -> 'pd.core.indexes.base.Index':
+    def _split(self, x:pd.Series, threshold) -> 'pd.core.indexes.base.Index':
         """
         returns two lists of split indexes, left and right [0,1], [2,3]
         """
@@ -101,12 +95,12 @@ class DecisionTree:
         right_indices = x.index[x >= threshold]
         return left_indices, right_indices
         
-    def entropy(self, y:pd.Series):
+    def _entropy(self, y:pd.Series):
         """calculates entropy"""
         prob = np.bincount(y) / len(y)
         return -np.sum([p * np.log2(p) for p in prob if p > 0])
     
-    def gini(self, y:pd.Series):
+    def _gini(self, y:pd.Series):
          """calculates gini index"""
          prob = np.bincount(y) / len(y)
          return 1 - np.sum(prob**2)

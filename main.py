@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from decision_tree.learn import learn
+from decision_tree.decisionTree import DecisionTree
 
 def prepare_dataset(path):
     """Load dataset"""
@@ -14,9 +14,8 @@ def prepare_dataset(path):
 
 def main():
     X, y = prepare_dataset('data\wine_dataset.csv')
-    decision_tree = decision_tree()
+    decision_tree = DecisionTree()
     decision_tree.learn(X, y, impurity_measure='entropy')
-    y = decision_tree.predict(x)
 
 if __name__ == '__main__':
     main()
