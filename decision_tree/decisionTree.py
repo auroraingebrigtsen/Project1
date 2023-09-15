@@ -12,6 +12,7 @@ class DecisionTree:
     def learn(self, X, y, impurity_measure='entropy'):
         """Seperates the data, sets the root and builds the tree. Prunes the tree"""
         self.impurity_measure = impurity_measure
+        """
         seed = 3
 
         # split the data into training data (60%) and pruning + test data (40%)
@@ -21,9 +22,12 @@ class DecisionTree:
         # Shuffle and split the data into pruning and test sets with a ratio of 0.5/0.5:
         X_prun, X_test, y_prun, y_test = model_selection.train_test_split(
         X_prun_test, y_prun_test, random_state=seed, test_size=0.5)
+        """
 
         # Start recursion
-        self.root = self._build(X_train, y_train)
+        #self.root = self._build(X_train, y_train)
+
+        self.root = self._build(X,y)
         
         # TODO: call function to prun tree
       
@@ -38,14 +42,14 @@ class DecisionTree:
 
     def _build(self, X:pd.DataFrame, y:pd.Series, depth=0) -> 'TreeNode':
         """Builds the tree recursively"""
-        if np.all(np.unique(y) == y[0]):  # If all data points have the same label, return a leaf with that label
-            return TreeNode(value=y[0])
+        if np.all(np.unique(y) == y.iloc[0]):  # If all data points have the same label, return a leaf with that label
+            return TreeNode(value=y.iloc[0])
         elif X.duplicated(keep=False).all(): # Else, if all data points have identical feature values, return a leaf with the most common label.
             return TreeNode(value=y.mode()[0]) 
         else:  # choose a feature that maximizes the information gain,
             best_threshold, best_feature = self._find_threshold(X, y)
-            new_node = TreeNode(feature=best_feature)
-            left_indices, right_indices = self._split(X.loc[best_feature], best_threshold)
+            new_node = TreeNode(feature_index=X.columns.get_loc(best_feature), feature=best_feature, threshold=best_threshold)
+            left_indices, right_indices = self._split(X[best_feature], best_threshold)
             
             left_X = X.loc[left_indices].reset_index(drop=True)
             left_y = y.loc[left_indices].reset_index(drop=True)
@@ -53,8 +57,8 @@ class DecisionTree:
             right_X = X.loc[right_indices].reset_index(drop=True)
             right_y = y.loc[right_indices].reset_index(drop=True)
 
-            left_child = self.build(left_X, left_y, depth=depth+1)
-            right_child = self.build(right_X, right_y, depth=depth+1)
+            left_child = self._build(left_X, left_y, depth=depth+1)
+            right_child = self._build(right_X, right_y, depth=depth+1)
             new_node.add_child(left_child)
             new_node.add_child(right_child)
             return new_node
@@ -62,7 +66,7 @@ class DecisionTree:
     def _information_gain(self, x:pd.Series, y:pd.Series, treshold) -> float:
         """calculates the information gain of a single feature"""
         base_impurity = self._calculate_impurity(y)
-        left_indexes, right_indexes = self.split(x, treshold)
+        left_indexes, right_indexes = self._split(x, treshold)
         if left_indexes.empty or right_indexes.empty:
                 return 0
         left_frac= len(left_indexes)/len(y)
@@ -105,9 +109,19 @@ class DecisionTree:
          prob = np.bincount(y) / len(y)
          return 1 - np.sum(prob**2)
         
-    def print_tree():
+    def print_tree(self):
         pass
 
-    def predict(x):
-        pass
-
+    def predict(self, x:pd.Series):
+        if len(self.root.children) == 0:
+             return self.root.value
+        else:
+             return self._predict(x, self.root)
+        
+    def _predict(self, x:pd.Series, node:'TreeNode'):
+        if len(node.children) == 0:
+            return node.value
+        elif x.iloc[node.feature_index] < node.threshold:
+            return self._predict(x, node.children[0])
+        else:
+            return self._predict(x, node.children[1])

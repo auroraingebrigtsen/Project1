@@ -67,4 +67,11 @@ def conditions(X, y):
         else:
                 return False
 
-print(conditions(df, y3))
+#print(conditions(df, y3))
+
+
+for index in range(len(df)):
+    
+    print(type(df.loc[index]))
+
+# Note: While 'iterrows()' is easy to use, it's less efficient for large DataFrames.

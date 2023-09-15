@@ -1,10 +1,11 @@
 class TreeNode:
-    def __init__(self, feature, root=None, children: list=[], value: int=None, ig: float=None) -> None:
+    def __init__(self, feature=None, root=None, children: list=[], value: int=None, threshold=None, feature_index: int=None) -> None:
         self.feature = feature
         self.root = root
         self.children = children.copy()
         self.value = value
-        self.ig = ig
+        self.threshold = threshold
+        self.feature_index = feature_index
     
     def add_child(self, child: 'TreeNode') -> None:
         """Add a new child to the Tree"""
