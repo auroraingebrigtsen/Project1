@@ -1,15 +1,22 @@
 import numpy as np
 import pandas as pd
-from sklearn import datasets, model_selection, metrics
+from decision_tree.learn import learn
 
+def prepare_dataset(path):
+    """Load dataset"""
+    df = pd.read_csv(path)
+    print(df.head(10))
+    X = df.drop(columns=['type'])
+    y = df['type']
+    # check for empty columns and NAn values
+    
+    return X, y
 
-#learn(X, y, impurity_measure='entropy')
-#predict(x, tree)
+def main():
+    X, y = prepare_dataset('data\wine_dataset.csv')
+    decision_tree = decision_tree()
+    decision_tree.learn(X, y, impurity_measure='entropy')
+    y = decision_tree.predict(x)
 
-
-df = pd.read_csv('project1\wine_dataset.csv')
-print(df.head(10))
-X = df.data[:, :6] # Store the first two features (sepal length in cm and sepal width in cm)
-print(X)
-y = df[:, 7]   # Store the labels (0, 1 or 2) coding the Iris species of each sample
-print(y)
+if __name__ == '__main__':
+    main()
