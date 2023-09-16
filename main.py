@@ -13,17 +13,13 @@ def prepare_dataset(path):
 
 def main():
     X, y = prepare_dataset('data\wine_dataset.csv')
-    decision_tree = DecisionTree()
-    decision_tree.learn(X, y, impurity_measure='gini')
-    errors = 0
-    correct = 0
-    for index in range(len(X)):
-        y_hat = decision_tree.predict(X.loc[index])
-        if y_hat == y[index]:
-            correct += 1
-        else:
-            errors +=1
-    print("Errors: ", errors, "\nCorrect: ", correct)
+    #decision_tree = DecisionTree()
+    decision_tree_pruned = DecisionTree()
+    #decision_tree.learn(X, y, impurity_measure='entropy', prune=False)
+    #decision_tree.print_tree()
+    decision_tree_pruned.learn(X, y, impurity_measure='entropy', prune=True)
+    decision_tree_pruned.print_tree()
+    #print(decision_tree.predict(pd.Series([0.48,1.7,3.19,0.62,9.5])))
 
 if __name__ == '__main__':
     main()
