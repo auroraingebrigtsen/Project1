@@ -188,9 +188,12 @@ df = pd.DataFrame(data)
 X = df.drop(columns='Decision')
 y = df['Decision']
 
+print(X)
+print(X.to_numpy())
+
 X_train, X_test, y_train, y_test = model_selection.train_test_split(
 X, y, test_size=0.1, random_state=123)
 
 tre = DecisionTree()
-tre.learn(X_train, y_train, prune=True)
-print(tre.root.feature, tre.root.children[0].feature, tre.root.children[1].feature)
+#tre.learn(X_train, y_train, prune=True)
+#print(tre.root.feature, tre.root.children[0].feature, tre.root.children[1].feature)

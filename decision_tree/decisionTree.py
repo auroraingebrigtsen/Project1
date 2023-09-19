@@ -145,21 +145,22 @@ class DecisionTree:
             for child in node.children: 
                 self._prune(y_train, X_prune, y_prune, child)
             if node.children[0].value is not None and node.children[1].value is not None:
-                    dec_node_errors = self._predict_df(X_prune, y_prune)
+                    dec_node_errors = self._evaluate(X_prune, y_prune)
                     labels = y_train.iloc[node.y_indexes]
                     node.value = labels.mode()[0]
-                    leaf_errors = self._predict_df(X_prune, y_prune)  # TODO find better name
+                    leaf_errors = self._evaluate(X_prune, y_prune)  # TODO find better name
                     if leaf_errors <= dec_node_errors:
                         node.remove_children()
                     else:
                         node.value = None
 
-    def _predict_df(self, X:pd.DataFrame, y:pd.Series) -> int:
-        """Iterates over the rows in a df and predicts the label. If label does not match true label, count 1 error"""
+    def _evaluate(self, X:pd.DataFrame, y:pd.Series) -> int:
+        """Iterates over the rows in a df and predicts the label. If label does not match true label, count 1 error. Returns accuracy"""
         errors = 0
+        total_rows = len(X)
         for index in range(len(X)):
              y_hat = self.predict(X.iloc[index])
              if y_hat != y.iloc[index]:
                   errors += 1
-        return errors
+        return (total_rows - errors) / total_rows
             
