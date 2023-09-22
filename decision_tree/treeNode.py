@@ -18,6 +18,4 @@ class TreeNode:
 
     def remove_children(self) -> None:
         """For pruning. Removes the connection to the children"""
-        for child in self.children:
-            del child
         self.children = []

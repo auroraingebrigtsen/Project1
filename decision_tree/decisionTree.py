@@ -8,18 +8,21 @@ class DecisionTree:
     def __init__(self) -> None:
         self.root = None
         self.impurity_measure = None
+        self.pruned = False
 
-    def learn(self, X:pd.DataFrame, y:pd.Series, impurity_measure: str='entropy', prune: bool=False, test_size: float=0.3):
+    def learn(self, X:pd.DataFrame, y:pd.Series, impurity_measure: str='entropy', prune: bool=False, test_size: float=0.3, seed=123):
         """starts the recursion to build a model. Prunes the tree if parameter prune=True"""
         self.impurity_measure = impurity_measure.lower()
         
         if prune:
             # split the data into training data and pruning data, 70-30 ratio by default
             X_train, X_prune, y_train, y_prune = model_selection.train_test_split(
-            X, y, test_size=test_size)
+            X, y, test_size=test_size, random_state=seed)
+
             # start recursion on training data
             self.root = self._build(X_train, y_train)
             self._prune(y_train, X_prune, y_prune, self.root)
+            self.pruned = True
         else:
             # start recursion on training data
             self.root = self._build(X, y)
@@ -145,22 +148,24 @@ class DecisionTree:
             for child in node.children: 
                 self._prune(y_train, X_prune, y_prune, child)
             if node.children[0].value is not None and node.children[1].value is not None:
-                    dec_node_errors = self._evaluate(X_prune, y_prune)
+                    dec_node_accuracy = self.evaluate(X_prune, y_prune)
                     labels = y_train.iloc[node.y_indexes]
                     node.value = labels.mode()[0]
-                    leaf_errors = self._evaluate(X_prune, y_prune)  # TODO find better name
-                    if leaf_errors <= dec_node_errors:
+                    leaf_accuracy = self.evaluate(X_prune, y_prune)
+                    if leaf_accuracy >= dec_node_accuracy:
                         node.remove_children()
                     else:
                         node.value = None
 
-    def _evaluate(self, X:pd.DataFrame, y:pd.Series) -> int:
+    def evaluate(self, X:pd.DataFrame, y:pd.Series, get_pred_series=False):
         """Iterates over the rows in a df and predicts the label. If label does not match true label, count 1 error. Returns accuracy"""
         errors = 0
         total_rows = len(X)
-        for index in range(len(X)):
+        predictions = []
+        for index in range(total_rows):
              y_hat = self.predict(X.iloc[index])
+             predictions.append(y_hat)
              if y_hat != y.iloc[index]:
                   errors += 1
-        return (total_rows - errors) / total_rows
+        return pd.Series(predictions) if get_pred_series else (total_rows - errors) / total_rows
             
