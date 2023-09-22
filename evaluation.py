@@ -5,7 +5,6 @@ import pandas as pd
 def visualize_cm(y_test:pd.Series, pred:pd.Series) -> None:
     """Visualize confusion matrix of model's predictions"""
     cm = confusion_matrix(y_test, pred, labels=(0, 1), normalize='all')
-    print(cm)
     cm_df = pd.DataFrame(cm, 
                         columns=["Predicted white wine", "Predicted red wine"], 
                         index=["Actually white wine", "Actually red wine"])
@@ -14,7 +13,8 @@ def visualize_cm(y_test:pd.Series, pred:pd.Series) -> None:
     fig.show()
 
 def performance_metrics(y_test:pd.Series, pred:pd.Series) -> dict:
-    """Calculates performance metrics:"""
+    """Calculates performance metrics: accuracy, precision, f1 and ROC AUC score. Returns a dictionary with
+    the results"""
     # Calculate accuracy
     accuracy = accuracy_score(y_test, pred)
     

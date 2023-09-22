@@ -9,6 +9,7 @@ def k_fold_cross_validation(X, y, k: int=10) -> DecisionTree:
     features = X.columns
     accuracy_scores = {}
     kf = KFold(n_splits=k)
+    average_time={}
 
     for impurity_measure in ['entropy', 'gini']:
         for prune in [False, True]:
@@ -28,9 +29,11 @@ def k_fold_cross_validation(X, y, k: int=10) -> DecisionTree:
 
                 # Store the evaluation score for this fold
                 combo_scores.append(score)
+                average_time[impurity_measure, prune] = stop - start
 
             # Calculate and return the mean and standard deviation of the fold scores
             accuracy_scores[model] = np.mean(combo_scores)
     best_model = max(accuracy_scores, key=accuracy_scores.get)
+    #print(average_time)
     return best_model, best_model.impurity_measure, best_model.pruned
 

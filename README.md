@@ -19,6 +19,8 @@ Folder structure:
 
 NOTE: to reproduce the results from the report, do not change seed parameters. All seeds are 123 by default.
 
+If you want to test run time, uncomment line 37 in validation.py to get build time, and 57-64 in main to get predict time.
+
 ------------------------------------------------------------------------------------------------------------
 Edit main.py to get the results wanted. Different options for running the code are described below.
 
@@ -50,4 +52,4 @@ To create a Decisiontree model with optimal hyperparameters:
 3. Call predict to predict the class label of some new data point x.
 4. If you want to visualize the tree, call print_tree()
 
-
+------------------------------------------------------------------------------------------------------------

@@ -24,5 +24,4 @@ def load_dataset(path, drop_nan=True, visualize_df=True):
 def _visualize(df):
     # Pairplot for visualizing relationships between numerical features
     sns.pairplot(df, hue='type', markers=["o", "s"], palette="husl")
-    plt.title("Pairplot of Features")
     plt.show()

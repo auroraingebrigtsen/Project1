@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from sklearn import model_selection
 from .treeNode import TreeNode
-import time
 
 class DecisionTree:
     def __init__(self) -> None:
@@ -94,11 +93,6 @@ class DecisionTree:
             best_feature = None
             for feature in X:
                     unique_vals = pd.unique(X[feature]) # array of unique values
-                    # Calculate the minimum and maximum values in the unique values
-                    #min_val, max_val = min(unique_vals), max(unique_vals)
-        
-                    # Generate thresholds within the specified range,
-                    #thresholds = np.linspace(min_val, max_val, 10)
                     for threshold in unique_vals:
                             ig = self._gain(X[feature], y, threshold)
                             if ig > best_ig:
