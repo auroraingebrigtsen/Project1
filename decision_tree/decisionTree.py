@@ -125,7 +125,10 @@ class DecisionTree:
          gini = 1 - np.sum(p**2 for p in prob if p > 0)
          return gini
 
-    def print_tree(self, node: 'TreeNode', direction="", depth=0) -> None:
+    def print_tree(self):
+         self._print_tree(node=self.root)
+
+    def _print_tree(self, node: 'TreeNode', direction="", depth=0) -> None:
         """Prints the tree recursively"""
         if node is None:
             return
@@ -137,7 +140,7 @@ class DecisionTree:
 
         if node.children:
             for child, child_direction in zip(node.children, ["Left: ", "Right: "]):
-                self.print_tree(child, child_direction, depth + 1)
+                self._print_tree(child, child_direction, depth + 1)
 
     def _prune(self, y_train:pd.Series, X_prune:pd.DataFrame, y_prune:pd.Series, node: 'TreeNode') -> None:
         """Performs reduced error pruning on the Tree. Calls the method recursively for each child. If both children is leaf nodes

@@ -15,8 +15,12 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.1, random_state=123)
 
+    tre = DecisionTree()
+    tre.learn(X_train, y_train)
+    tre.print_tree()
+
     # run k fold cross validation to find optimal hyperparameters
-    my_model, impurity_measure, pruned = k_fold_cross_validation(X_train, y_train, k=2)
+    my_model, impurity_measure, pruned = k_fold_cross_validation(X_train, y_train, k=10)
     print(impurity_measure, pruned)
 
     # train my model with the entire training set.
