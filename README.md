@@ -1,5 +1,5 @@
 # Project1
-INF264 Project1
+INF264 Project1 @uib
 
 Install requirements:
 $ pip install -r requirements.txt
